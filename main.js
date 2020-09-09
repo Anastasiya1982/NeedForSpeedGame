@@ -18,20 +18,38 @@ start.addEventListener('click', startGame);
    const setting={
        start:false,
        score:0,
-       speed:3
+       speed:3,
+       traffic:3
    };
+//функция определяет количество элементов для заполнения страницы ( сколько влезает на экран
 
+function getQuantityElements(heightElement){
+    return document.documentElement.clientHeight / heightElement + 1;
+}
+
+//console.log(getQuantityElements(200));
 
 function startGame() {
     start.classList.add('hide');
     // добавляем линии на дороге
-    for ( let i =0;i<20;i++ ){
+    for ( let i =0;i<getQuantityElements(50);i++ ){
        const line=document.createElement('div');
        line.classList.add('line');
        line.style.top=(i*100) + 'px';
        line.y = i*100;
        gameArea.appendChild(line)
        }
+    //создаем атомобили на дороге
+    for( let i=0; i<getQuantityElements(100 * setting.traffic); i++){
+       const enemy = document.createElement('div');
+       enemy.classList.add('enemy');
+       enemy.y= -100 * setting.traffic *(i +1);
+       enemy.style.left = Math.floor(Math.random() * (gameArea.offsetWidth-50)) + 'px';
+       enemy.style.top = enemy.y + 'px';
+       enemy.style.background= 'transparent url("./image/enemy2.png") center / cover no-repeat'
+
+       gameArea.appendChild(enemy);
+    }
     setting.start = true;
     // добавляем машинку игрока
     gameArea.appendChild(car);
@@ -44,6 +62,7 @@ function playGame() {
     // условия когда игра начата машинка игрока движется в направлении удерживаемых клавиш клавиш
     if (setting.start) {
         moveRoad();//Движение полос на дороге
+        moveEnemy(); //Движение машинок- препятсвий  по дороге 
         if (keys.ArrowLeft && setting.x>0) {
             setting.x -= setting.speed;
         } else if (keys.ArrowRight && setting.x < (gameArea.offsetWidth-car.offsetWidth)) {
@@ -79,6 +98,16 @@ function playGame() {
         if(line.y >=document.documentElement.clientHeight){
             line.y = -100;
         }
-
-    })
+    });
+  }
+  function moveEnemy() {
+     let enemy = document.querySelectorAll('.enemy');
+     enemy.forEach((function (item,i) {
+          item.y += setting.speed /2;
+          item.style.top = item.y + 'px';
+          if( item.y >= document.documentElement.clientHeight){
+              item.y = -100 * setting.traffic;
+             item.style.left = Math.floor(Math.random() * (gameArea.offsetWidth-50)) + 'px';
+          }
+     }));
   }
